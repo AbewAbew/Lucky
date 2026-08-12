@@ -44,13 +44,29 @@ class TelegramBot:
         self.client = httpx.AsyncClient(timeout=40)
 
     async def call(self, method: str, payload: dict[str, Any] | None = None) -> Any:
-        response = await self.client.post(
-            f"{self.base_url}/{method}", json=payload or {}
-        )
-        response.raise_for_status()
-        body = response.json()
+        # Never let an httpx exception escape this method: several of them
+        # (HTTPStatusError, and potentially others depending on httpx's
+        # transport internals) stringify to include the full request URL,
+        # which embeds the bot token (https://api.telegram.org/bot<TOKEN>/...).
+        # Callers log str(exc) — a raw httpx exception here would leak it.
+        try:
+            response = await self.client.post(
+                f"{self.base_url}/{method}", json=payload or {}
+            )
+        except httpx.HTTPError as exc:
+            raise RuntimeError(f"Telegram {method} request failed: {exc.__class__.__name__}") from exc
+        try:
+            body = response.json()
+        except ValueError as exc:
+            raise RuntimeError(
+                f"Telegram returned a non-JSON response for {method} "
+                f"(HTTP {response.status_code})"
+            ) from exc
         if not body.get("ok"):
-            raise RuntimeError(body.get("description", "Telegram request failed"))
+            raise RuntimeError(
+                f"Telegram {method} failed: "
+                f"{body.get('description', 'Telegram request failed')}"
+            )
         return body.get("result")
 
     async def set_webhook(self, url: str, secret_token: str) -> None:
