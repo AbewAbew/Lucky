@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#071e2a" />
+    <title>Lucky Bingo</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260810-game-balance-v26" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <main class="app-shell">
+      <section id="loading-screen" class="center-screen">
+        <div class="logo-ball">L</div>
+        <h1>Lucky</h1>
+        <p id="loading-copy" data-i18n="loading_copy">Joining the fun…</p>
+        <span class="loader"></span>
+      </section>
+
+      <section id="error-screen" class="center-screen hidden">
+        <div class="logo-ball error-ball">!</div>
+        <h1 data-i18n="error_title">Couldn’t open Lucky</h1>
+        <p id="error-copy">Please try again.</p>
+        <button class="primary-button compact" onclick="window.location.reload()" data-i18n="error_try_again">Try again</button>
+      </section>
+
+      <section id="lobby-screen" class="screen hidden">
+        <header class="topbar">
+          <div>
+            <span class="eyebrow" data-i18n="welcome_back">WELCOME BACK</span>
+            <h1 id="welcome-name">Player</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="locale-switch" role="group" aria-label="Language" data-i18n-aria-label="language_toggle_label">
+              <button type="button" class="locale-option" data-locale-option="en">EN</button>
+              <button type="button" class="locale-option" data-locale-option="am">አማ</button>
+              <button type="button" class="locale-option" data-locale-option="ti">ትግ</button>
+            </div>
+            <button id="profile-button" class="avatar" aria-label="Profile">P</button>
+          </div>
+        </header>
+
+        <div class="wallet-banner">
+          <span><small data-i18n="lucky_balance">LUCKY BALANCE</small><strong id="wallet-balance">0.00 birr</strong></span>
+          <div class="wallet-action-buttons">
+            <button id="wallet-button" class="wallet-deposit-button" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>
+              <span data-i18n="deposit">Deposit</span>
+            </button>
+            <button id="withdraw-button" class="wallet-withdraw-button" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+              <span data-i18n="withdraw">Withdraw</span>
+            </button>
+          </div>
+          <div class="wallet-banner-coins" aria-hidden="true">
+            <svg width="220" height="42" viewBox="0 0 220 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="110" cy="30" rx="90" ry="12" fill="url(#coinGlow)" opacity="0.65"/>
+              <ellipse cx="40" cy="32" rx="18" ry="6" fill="#b45309"/>
+              <ellipse cx="40" cy="30" rx="18" ry="6" fill="#f59e0b"/>
+              <ellipse cx="65" cy="34" rx="22" ry="7" fill="#92400e"/>
+              <ellipse cx="65" cy="31" rx="22" ry="7" fill="#fbbf24"/>
+              <ellipse cx="180" cy="32" rx="18" ry="6" fill="#b45309"/>
+              <ellipse cx="180" cy="30" rx="18" ry="6" fill="#f59e0b"/>
+              <ellipse cx="155" cy="34" rx="22" ry="7" fill="#92400e"/>
+              <ellipse cx="155" cy="31" rx="22" ry="7" fill="#fbbf24"/>
+              <ellipse cx="90" cy="33" rx="24" ry="7" fill="#d97706"/>
+              <ellipse cx="90" cy="29" rx="24" ry="7" fill="#ffe066"/>
+              <ellipse cx="130" cy="33" rx="24" ry="7" fill="#d97706"/>
+              <ellipse cx="130" cy="29" rx="24" ry="7" fill="#ffe066"/>
+              <circle cx="110" cy="20" r="18" fill="url(#centerCoinGrad)" stroke="#ffe066" stroke-width="1.5"/>
+              <circle cx="110" cy="20" r="14" fill="none" stroke="#b45309" stroke-width="1" stroke-dasharray="2 2"/>
+              <g fill="#92400e" transform="translate(110, 20) scale(0.65)">
+                <path d="M0 -6 C-3 -11, -8 -11, -8 -6 C-8 -2, -3 0, 0 4 C3 0, 8 -2, 8 -6 C8 -11, 3 -11, 0 -6 Z"/>
+                <path d="M0 6 C-3 11, -8 11, -8 6 C-8 2, -3 0, 0 -4 C3 0, 8 2, 8 6 C8 11, 3 11, 0 6 Z"/>
+                <path d="M-6 0 C-11 -3, -11 -8, -6 -8 C-2 -8, 0 -3, 4 0 C0 3, -2 8, -6 8 C-11 8, -11 3, -6 0 Z"/>
+                <path d="M6 0 C11 -3, 11 -8, 6 -8 C2 -8, 0 -3, -4 0 C0 3, 2 8, 6 8 C11 8, 11 3, 6 0 Z"/>
+              </g>
+              <defs>
+                <radialGradient id="coinGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ffd700" stop-opacity="0.8"/>
+                  <stop offset="100%" stop-color="#ffd700" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="centerCoinGrad" x1="92" y1="2" x2="128" y2="38" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#fffbeb"/>
+                  <stop offset="25%" stop-color="#fde047"/>
+                  <stop offset="65%" stop-color="#eab308"/>
+                  <stop offset="100%" stop-color="#ca8a04"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+
+        <div id="bonus-banner" class="bonus-banner hidden">
+          <span class="banner-icon banner-icon-gold" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          </span>
+          <span class="banner-text">
+            <strong data-i18n="free_bonus_title">FREE BONUS</strong>
+            <small id="bonus-banner-copy" data-i18n="free_bonus_copy_generic">New players get a free birr bonus to try Lucky. It can't be withdrawn, but any winnings from it can.</small>
+          </span>
+        </div>
+
+        <button id="rules-button" class="rules-banner" type="button">
+          <span class="banner-icon banner-icon-emerald" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12C9.5 9 5.5 9.5 4 12c-1.5 2.5.5 6 3.5 6s4.5-3.5 4.5-6zm0 0c2.5 3 6.5 2.5 8-0c1.5-2.5-.5-6-3.5-6s-4.5 3.5-4.5 6zm0 0c-3 2.5-2.5 6.5 0 8c2.5 1.5 6-.5 6-3.5s-3.5-4.5-6-4.5zm0 0c3-2.5 2.5-6.5 0-8c-2.5-1.5-6 .5-6 3.5s3.5 4.5 6 4.5z"/>
+            </svg>
+          </span>
+          <span class="banner-text"><strong data-i18n="how_to_play_title">How to play</strong><small data-i18n="how_to_play_subtitle">Game rules and winning patterns</small></span>
+          <span class="rules-banner-arrow" data-i18n="view_rules_arrow">View rules →</span>
+        </button>
+
+        <div id="test-mode-banner" class="test-mode-banner hidden">
+          <span class="banner-icon banner-icon-coral" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.3" r=".6" fill="currentColor" stroke="none"/></svg>
+          </span>
+          <span class="banner-text"><strong data-i18n="test_mode_title">TEST MODE</strong><small data-i18n="test_mode_copy">One player with five cartelas starts the 20-second countdown.</small></span>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow" data-i18n="choose_your_game">CHOOSE YOUR GAME</span>
+            <h2 data-i18n="betting_categories">Betting categories</h2>
+          </div>
+          <button id="refresh-button" class="icon-button" aria-label="Refresh rooms" type="button" data-i18n-aria-label="refresh_rooms_aria">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M2.5 16l1.2 1.2A10 10 0 0 0 22 12.5"/></svg>
+          </button>
+        </div>
+        <div id="room-list" class="room-list"></div>
+
+      </section>
+
+      <section id="game-screen" class="screen game-screen hidden">
+        <header class="game-nav-header">
+          <button id="back-button" class="icon-button back-nav" aria-label="Back to lobby" data-i18n-aria-label="back_to_lobby">←</button>
+          <div class="game-nav-title">
+            <span id="game-status" class="status-dot">WAITING</span>
+            <span id="call-message" class="nav-call-sub" data-i18n="game_starts_shortly">Game starts shortly</span>
+          </div>
+          <button id="share-button" class="icon-button share-nav" aria-label="Invite friends" data-i18n-aria-label="invite_friends">↗</button>
+        </header>
+
+        <!-- TOP JACKPOT BANNER CARD -->
+        <article class="jackpot-card-banner">
+          <div class="jp-col jp-left">
+            <span class="jp-label" data-i18n="room_label">ROOM</span>
+            <h2 id="room-name">—</h2>
+            <div class="jp-players-count">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              <span id="player-count-text">0 Players</span>
+            </div>
+          </div>
+
+          <div class="jp-col jp-center">
+            <div class="jp-header-star" data-i18n="jackpot_label">★ JACKPOT ★</div>
+            <div class="jp-amount-row">
+              <span id="game-payout" class="jp-amount">0.00</span>
+              <span id="payout-currency" class="jp-currency">BIRR</span>
+            </div>
+            <!-- Pot of gold illustration -->
+            <div class="pot-gold-illustration">
+              <svg width="100" height="32" viewBox="0 0 100 32" fill="none">
+                <ellipse cx="50" cy="8" rx="35" ry="5" fill="#ffd700" opacity="0.6"/>
+                <circle cx="35" cy="7" r="5" fill="#f5c027"/>
+                <circle cx="45" cy="5" r="6" fill="#ffe066"/>
+                <circle cx="55" cy="6" r="5" fill="#f5c027"/>
+                <circle cx="65" cy="8" r="4" fill="#ffd700"/>
+                <path d="M20 10 C 20 28, 80 28, 80 10 C 75 32, 25 32, 20 10 Z" fill="url(#potGoldGrad)"/>
+                <defs>
+                  <linearGradient id="potGoldGrad" x1="20" y1="10" x2="80" y2="32" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#b45309"/>
+                    <stop offset="0.5" stop-color="#f59e0b"/>
+                    <stop offset="1" stop-color="#78350f"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div id="game-id-tag" class="jp-game-id">Round</div>
+          </div>
+
+          <div class="jp-col jp-right">
+            <span id="timer-label" class="jp-label" data-i18n="game_status_label">GAME STATUS</span>
+            <div class="timer-ring-container">
+              <svg class="timer-ring-svg" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path id="timer-progress" class="circle" stroke-dasharray="70, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div id="call-timer-text" class="timer-text">—</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- CALLED NUMBERS BAR -->
+        <article class="called-numbers-panel">
+          <span class="called-title" data-i18n-html="called_numbers_html">CALLED<br>NUMBERS</span>
+          <div id="latest-ball-container" class="latest-ball-wrapper hidden">
+            <div id="latest-ball" class="latest-ball">—</div>
+          </div>
+          <div id="recent-calls" class="recent-calls-list"></div>
+          <button id="view-all-calls" class="view-all-btn" data-i18n="view_all">VIEW ALL &rsaquo;</button>
+        </article>
+
+        <article id="result-review-panel" class="result-review-panel hidden">
+          <div class="result-review-copy">
+            <span id="result-review-badge" class="result-review-badge">RESULT REVIEW</span>
+            <strong id="result-review-title">Bingo detected — calls stopped</strong>
+            <p id="result-review-copy" data-i18n="result_review_copy">The server is checking every cartela from the final call.</p>
+          </div>
+          <div class="result-review-actions">
+            <strong id="result-review-countdown">15s</strong>
+            <button id="dispute-round-button" type="button" data-i18n="dispute_result">Dispute result</button>
+          </div>
+        </article>
+
+        <!-- BINGO MATRIX BOARD CONTAINER -->
+        <article class="card-panel-wrapper">
+          <div class="card-panel-subhead">
+            <div>
+              <span id="card-label" class="eyebrow" data-i18n="your_cartelas">YOUR CARTELAS</span>
+              <p id="mark-instruction" data-i18n="tap_to_mark">Tap called numbers to mark them</p>
+            </div>
+            <div class="cartela-panel-tools">
+              <label class="compact-auto-control" for="auto-mark-toggle">
+                <span data-i18n="auto">Auto</span>
+                <input id="auto-mark-toggle" type="checkbox" />
+                <i class="compact-auto-track" aria-hidden="true"></i>
+              </label>
+              <div class="stake-info-pill">
+                <span data-i18n="stake_label">Stake:</span>
+                <strong id="game-pool">0.00 birr</strong>
+              </div>
+              <button id="cancel-all-button" type="button" class="cancel-all-button hidden" data-i18n="cancel_all">Cancel all</button>
+            </div>
+          </div>
+          <div id="bingo-cards" class="bingo-cards"></div>
+        </article>
+
+        <!-- GAME CONTROLS -->
+        <div class="game-action-buttons">
+          <div class="game-balance-indicator" aria-live="polite">
+            <span><small data-i18n="available_balance">AVAILABLE BALANCE</small><strong id="game-wallet-balance">0.00 birr</strong></span>
+            <span class="game-balance-status" data-i18n="wallet_status">Wallet</span>
+          </div>
+          <button id="action-buy-card" class="action-btn buy-card-btn">
+            <div class="action-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg>
+            </div>
+            <div class="action-text">
+              <strong id="buy-card-label">BUY CARD</strong>
+              <span id="buy-card-price">—</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- BOTTOM STATS & INFO PANEL -->
+        <article class="game-info-grid">
+          <div class="info-card active-players-card">
+            <div class="info-card-head">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+              <span data-i18n="active_players">ACTIVE PLAYERS</span>
+            </div>
+            <div id="active-player-count" class="live-stat-number">0</div>
+            <div class="online-status">
+              <i class="online-dot"></i>
+              <span id="online-players-text">0 Players Online</span>
+            </div>
+          </div>
+
+          <div class="info-card your-cards-card">
+            <div class="info-card-head">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z"/></svg>
+              <span data-i18n="your_cards">YOUR CARDS</span>
+            </div>
+            <div class="cards-count-row">
+              <span id="your-cards-number" class="cards-big-num">0</span>
+              <span class="ticket-icon">🎫</span>
+            </div>
+            <button id="manage-cards-button" class="manage-cards-btn" data-i18n="manage_cards">MANAGE CARDS</button>
+          </div>
+
+        </article>
+
+        <p class="fair-note" data-i18n="fair_note">Cards and winners are verified by the game server.</p>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status"></div>
+    <div id="result-modal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div id="result-icon" class="result-icon">★</div>
+        <span class="eyebrow" data-i18n="game_result">GAME RESULT</span>
+        <h2 id="result-title">Bingo!</h2>
+        <p id="result-copy"></p>
+        <div id="result-winner-cards" class="result-winner-cards"></div>
+        <button id="result-button" class="primary-button" data-i18n="back_to_lobby_button">Back to lobby</button>
+      </div>
+    </div>
+
+    <div id="confirm-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <div class="modal-card confirm-modal-card">
+        <div id="confirm-icon" class="confirm-icon">⚠</div>
+        <h2 id="confirm-title" data-i18n="please_confirm">Please confirm</h2>
+        <p id="confirm-copy"></p>
+        <div class="confirm-modal-actions">
+          <button id="confirm-cancel-button" class="ghost-button" type="button" data-i18n="go_back">Go back</button>
+          <button id="confirm-ok-button" class="danger-button" type="button" data-i18n="confirm_button_default">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="rules-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+      <article class="modal-card rules-modal-card">
+        <header class="rules-header">
+          <div><span class="eyebrow" data-i18n="rules_brand_eyebrow">LUCKY BINGO</span><h2 id="rules-title" data-i18n="rules_title">Game rules</h2></div>
+          <button id="close-rules-modal" class="icon-button" aria-label="Close rules" data-i18n-aria-label="close_rules">×</button>
+        </header>
+
+        <section class="rules-section">
+          <h3 data-i18n="rules_section_joining_title">Joining a game</h3>
+          <ol>
+            <li data-i18n="rules_joining_1">Choose the 2, 5, or 10 birr game. Each game has 400 unique cartelas.</li>
+            <li data-i18n="rules_joining_2">You may purchase up to five cartelas. Every cartela is charged as a separate stake.</li>
+            <li data-i18n="rules_joining_3">A round needs five different Telegram players. Multiple cartelas from one person still count as one player.</li>
+            <li data-i18n="rules_joining_4">After the fifth player joins, a 20-second countdown begins. No new cartelas can be purchased after the game starts.</li>
+          </ol>
+        </section>
+
+        <section class="rules-section">
+          <h3 data-i18n="rules_section_winning_title">How to win</h3>
+          <ol start="5">
+            <li data-i18n="rules_winning_1">Numbers 1–75 are called randomly without repetition.</li>
+            <li data-i18n="rules_winning_2">A valid Bingo is a complete horizontal row, vertical column, diagonal, or all four corner squares. The centre square is free.</li>
+            <li data-i18n="rules_winning_3">You may mark manually or use Auto Dab. The server’s called-number record is authoritative.</li>
+            <li data-i18n="rules_winning_4">The server verifies every cartela, including during a temporary connection problem.</li>
+          </ol>
+        </section>
+
+        <section class="rules-section">
+          <h3 data-i18n="rules_section_prizes_title">Prizes, ties and claims</h3>
+          <ol start="9">
+            <li data-i18n="rules_prizes_1">The winner receives the total stakes minus the 5% commission and configured transfer cost.</li>
+            <li data-i18n="rules_prizes_2">One to four cartelas completing Bingo on the same first winning call share the prize equally.</li>
+            <li data-i18n="rules_prizes_3">Number calling stops immediately when the server detects the first valid Bingo. No additional numbers are called.</li>
+            <li data-i18n="rules_prizes_4">The result remains pending for 15 seconds while the server confirms every cartela that won on the same final call.</li>
+            <li data-i18n="rules_prizes_5">If more than four cartelas win on the same call, the round is dismissed and all entry stakes are refunded with no commission.</li>
+            <li data-i18n="rules_prizes_6">A false Bingo claim blocks only the cartela used for that claim; your other cartelas remain active.</li>
+            <li data-i18n="rules_prizes_7">A participating player may dispute the result during the 15-second review. A dispute freezes payment and saves the round as DISPUTED.</li>
+          </ol>
+        </section>
+
+        <section class="rules-section">
+          <h3 data-i18n="rules_section_deposits_title">Deposits and fair play</h3>
+          <ol start="16">
+            <li data-i18n="rules_deposits_1">Deposit transaction IDs must be unique.</li>
+            <li data-i18n="rules_deposits_2">Funds are credited only after an authorized administrator verifies and approves the deposit.</li>
+            <li data-i18n="rules_deposits_3">Every result keeps its Game ID, ordered calls, winning cartelas, player information, and exact server timestamps as evidence.</li>
+            <li data-i18n="rules_deposits_4">Withdrawals require at least 100 birr. A pending withdrawal is reserved and cannot be spent; rejection releases it and approval completes the debit.</li>
+          </ol>
+        </section>
+
+        <button id="rules-done-button" class="primary-button" data-i18n="i_understand">I understand</button>
+      </article>
+    </div>
+
+    <div id="card-modal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-card choice-modal cartela-picker">
+        <header class="picker-header">
+          <div>
+            <span class="eyebrow" data-i18n="select_your_cartelas">SELECT YOUR CARTELAS</span>
+            <h2 id="choice-room">Lucky</h2>
+            <p id="choice-count">Choose and preview up to 5 cartelas.</p>
+          </div>
+          <button id="close-card-modal" class="icon-button" aria-label="Close" data-i18n-aria-label="card_modal_close">×</button>
+        </header>
+
+        <div id="selected-cartelas" class="selected-cartelas"></div>
+
+        <div class="grid-panel">
+          <div class="grid-panel-head">
+            <span class="eyebrow" data-i18n="select_cartelas_eyebrow">SELECT CARTELAS</span>
+          </div>
+          <div id="card-number-grid" class="card-number-grid" aria-label="Available cartelas" data-i18n-aria-label="available_cartelas_aria"></div>
+        </div>
+
+        <div class="picker-commit-actions">
+          <button id="confirm-cards-button" class="primary-button" disabled>Buy Cartela</button>
+          <button id="watch-cards-button" class="watch-button" disabled>Choose Without Buying</button>
+        </div>
+
+        <section id="cartela-preview" class="cartela-preview hidden">
+          <div class="preview-section-label">
+            <span class="eyebrow" data-i18n="cartela_preview_eyebrow">CARTELA PREVIEW</span>
+            <span class="preview-note" data-i18n="cartela_preview_note">Review before adding</span>
+          </div>
+          <div class="preview-cartela-board">
+            <div class="preview-heading">
+              <h3 id="preview-title">Cartela</h3>
+              <span id="preview-card-status" class="preview-card-status">READY TO ADD</span>
+            </div>
+            <div class="preview-bingo-head" aria-hidden="true"><span>B</span><span>I</span><span>N</span><span>G</span><span>O</span></div>
+            <div id="preview-card" class="preview-card"></div>
+          </div>
+          <button id="preview-toggle-button" class="secondary-button">Add this cartela</button>
+        </section>
+
+        <div class="picker-actions">
+          <button id="random-card-button" class="text-button">Preview a random available cartela</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="wallet-modal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-card wallet-modal-card">
+        <div class="wallet-modal-head">
+          <div><span class="eyebrow" data-i18n="lucky_wallet">LUCKY WALLET</span><h2 id="modal-balance">0.00 birr</h2><small id="modal-bonus-note" class="wallet-limit-note hidden"></small></div>
+          <button id="close-wallet-modal" class="icon-button" aria-label="Close" data-i18n-aria-label="close_wallet">×</button>
+        </div>
+        <div id="money-mode-note" class="mode-note"></div>
+        <div class="wallet-tabs" role="tablist">
+          <button class="wallet-tab active" data-wallet-tab="deposit" type="button" data-i18n="tab_deposit">Deposit</button>
+          <button class="wallet-tab" data-wallet-tab="withdraw" type="button" data-i18n="tab_withdraw">Withdraw</button>
+          <button class="wallet-tab" data-wallet-tab="transfer" type="button" data-i18n="tab_transfer">Transfer</button>
+          <button class="wallet-tab" data-wallet-tab="history" type="button" data-i18n="tab_history">History</button>
+        </div>
+        <section id="wallet-deposit-panel" class="wallet-tab-panel">
+          <div class="deposit-accounts">
+            <p><span data-i18n="provider_telebirr">Telebirr</span><strong id="telebirr-account">—</strong></p>
+            <p><span data-i18n="provider_cbe">CBE Birr</span><strong id="cbe-account">—</strong></p>
+            <p><span data-i18n="provider_cbe_account">CBE Bank Account</span><strong id="cbe-bank-account">—</strong></p>
+            <small id="account-name"></small>
+          </div>
+          <form id="deposit-form" class="deposit-form">
+            <select id="deposit-provider" class="form-input"><option value="telebirr" data-i18n="provider_telebirr">Telebirr</option><option value="cbe" data-i18n="provider_cbe">CBE Birr</option><option value="cbe_account" data-i18n="provider_cbe_account">CBE Bank Account</option></select>
+            <input id="deposit-amount" class="form-input" type="number" min="10" step="0.01" placeholder="Amount in birr (minimum 10)" required />
+            <input id="deposit-txid" class="form-input" minlength="4" placeholder="Transaction ID / reference" required data-i18n-placeholder="transaction_id_placeholder" />
+            <button class="primary-button" type="submit" data-i18n="submit_for_approval">Submit for approval</button>
+          </form>
+        </section>
+        <section id="wallet-withdraw-panel" class="wallet-tab-panel hidden">
+          <div class="withdrawal-summary">
+            <span><span data-i18n="withdrawable">Withdrawable</span><strong id="withdraw-available">0.00 birr</strong></span>
+            <span><span data-i18n="bonus_locked">Bonus (locked)</span><strong id="withdraw-bonus-locked">0.00 birr</strong></span>
+            <span><span data-i18n="reserved">Reserved</span><strong id="withdraw-reserved">0.00 birr</strong></span>
+          </div>
+          <p id="withdrawal-rule" class="wallet-limit-note">Minimum withdrawal: 100.00 birr</p>
+          <div id="withdrawal-blocked-notice" class="withdrawal-blocked-notice hidden"></div>
+          <form id="withdrawal-form" class="withdrawal-form" novalidate>
+            <select id="withdrawal-provider" class="form-input"><option value="telebirr" data-i18n="provider_telebirr">Telebirr</option><option value="cbe" data-i18n="provider_cbe">CBE Birr</option><option value="cbe_account" data-i18n="provider_cbe_account">CBE Bank Account</option></select>
+            <input id="withdrawal-amount" class="form-input" type="number" min="100" step="0.01" placeholder="Amount in birr" required data-i18n-placeholder="withdrawal_amount_placeholder" />
+            <input id="withdrawal-account" class="form-input" minlength="5" maxlength="40" placeholder="Receiving account number" required data-i18n-placeholder="withdrawal_account_placeholder" />
+            <input id="withdrawal-name" class="form-input" minlength="2" maxlength="100" placeholder="Account holder name" required data-i18n-placeholder="withdrawal_name_placeholder" />
+            <button id="withdrawal-submit-button" class="primary-button" type="submit">Request withdrawal</button>
+          </form>
+        </section>
+        <section id="wallet-transfer-panel" class="wallet-tab-panel hidden">
+          <div class="my-telegram-id">
+            <span><small data-i18n="your_telegram_id">YOUR TELEGRAM ID</small><strong id="my-telegram-id">—</strong></span>
+            <button id="copy-my-telegram-id" type="button" class="text-button" data-i18n="copy">Copy</button>
+          </div>
+          <p class="wallet-limit-note" data-i18n-html="transfer_id_hint">Share your ID with whoever is sending you money. You can also get it anytime by sending <b>/myid</b> to the bot.</p>
+          <div class="withdrawal-summary">
+            <span><span data-i18n="transferable">Transferable</span><strong id="transfer-available">0.00 birr</strong></span>
+            <span><span data-i18n="bonus_locked">Bonus (locked)</span><strong id="transfer-bonus-locked">0.00 birr</strong></span>
+          </div>
+          <p id="transfer-rule" class="wallet-limit-note">Minimum transfer: 10.00 birr. An administrator reviews every transfer before it's sent.</p>
+          <form id="transfer-form" class="withdrawal-form">
+            <input id="transfer-recipient-id" class="form-input" type="number" placeholder="Recipient's Telegram ID" required data-i18n-placeholder="transfer_recipient_placeholder" />
+            <div id="transfer-recipient-preview" class="transfer-recipient-preview hidden"></div>
+            <input id="transfer-amount" class="form-input" type="number" min="10" step="0.01" placeholder="Amount in birr" required data-i18n-placeholder="transfer_amount_placeholder" />
+            <button id="transfer-submit-button" class="primary-button" type="submit" disabled>Find a recipient first</button>
+          </form>
+        </section>
+        <section id="wallet-history-panel" class="wallet-tab-panel hidden">
+          <h3 class="history-title" data-i18n="recent_activity">Recent activity</h3>
+          <div id="wallet-history" class="wallet-history"></div>
+          <nav id="wallet-history-pagination" class="wallet-history-pagination hidden" aria-label="Wallet history pages">
+            <button id="wallet-history-prev" type="button" data-i18n="previous">Previous</button>
+            <span id="wallet-history-page-status">Page 1 of 1</span>
+            <button id="wallet-history-next" type="button" data-i18n="next">Next</button>
+          </nav>
+        </section>
+      </div>
+    </div>
+
+    <script type="module" src="/static/app.js?v=20260810-game-balance-v26"></script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+.env
+.run/
+.tools/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+data/*.db*
+.claude/
+.codex/
+.agents/

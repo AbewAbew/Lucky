@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#071e2a" />
+    <title>Lucky Admin</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260810-game-balance-v26" />
+    <link rel="stylesheet" href="/static/admin.css?v=20260810-game-balance-v26" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+  <body>
+    <main class="admin-shell">
+      <section id="admin-loading" class="center-screen">
+        <div class="logo-ball">L</div><h1>Lucky Admin</h1><p>Verifying administrator…</p><span class="loader"></span>
+      </section>
+
+      <section id="admin-error" class="center-screen hidden">
+        <div class="logo-ball error-ball">!</div><h1>Access denied</h1><p id="admin-error-copy"></p>
+      </section>
+
+      <section id="admin-dashboard" class="admin-dashboard hidden">
+        <header class="admin-header">
+          <div><span class="eyebrow">CONTROL CENTRE</span><h1>Lucky Admin</h1></div>
+          <button id="admin-refresh" class="icon-button">↻</button>
+        </header>
+
+        <div class="admin-tabs">
+          <button class="admin-tab active" data-tab="games">Live games</button>
+          <button class="admin-tab" data-tab="evidence">Round evidence <span id="evidence-count">0</span></button>
+          <button class="admin-tab" data-tab="deposits">Deposits <span id="deposit-count">0</span></button>
+          <button class="admin-tab" data-tab="withdrawals">Withdrawals <span id="withdrawal-count">0</span></button>
+          <button class="admin-tab" data-tab="transfers">Transfers <span id="transfer-count">0</span></button>
+          <button class="admin-tab" data-tab="revenue">Revenue</button>
+        </div>
+
+        <section id="games-tab" class="admin-tab-panel">
+          <div id="admin-room-list" class="admin-room-list"></div>
+          <article id="admin-live-board" class="admin-board hidden">
+            <div class="board-head">
+              <div><span id="admin-game-status" class="status-dot">WAITING</span><h2 id="admin-room-name">Game</h2><p id="admin-countdown" class="admin-countdown"></p></div>
+              <div id="admin-latest-ball" class="latest-ball">—</div>
+            </div>
+            <div id="admin-finance" class="admin-finance"></div>
+            <div class="board-section-head"><strong>CALLED NUMBERS</strong><span>1–75</span></div>
+            <div class="number-board" id="number-board"></div>
+            <div class="board-section-head"><strong>SOLD CARTELAS</strong><span id="sold-card-count">0/400 marked</span></div>
+            <div class="sold-card-board" id="sold-card-board"></div>
+            <button id="admin-start-game" class="primary-button">Start game</button>
+          </article>
+        </section>
+
+        <section id="evidence-tab" class="admin-tab-panel hidden">
+          <div class="evidence-page-head">
+            <div><span class="eyebrow">PERMANENT RECORDS</span><h2>Round evidence</h2></div>
+            <input id="evidence-search" type="search" placeholder="Search Game ID" inputmode="numeric" />
+          </div>
+          <div id="evidence-round-list" class="evidence-round-list"></div>
+          <nav id="evidence-pagination" class="evidence-pagination" aria-label="Round evidence pages">
+            <button id="evidence-prev" type="button">Previous</button>
+            <span id="evidence-page-status">Page 1 of 1</span>
+            <button id="evidence-next" type="button">Next</button>
+          </nav>
+          <article id="evidence-detail" class="admin-evidence evidence-detail hidden"></article>
+        </section>
+
+        <section id="deposits-tab" class="admin-tab-panel hidden">
+          <div class="warning-card">Verify every transaction in Telebirr or CBE Birr before approval. A transaction ID appearing here is not proof of payment.</div>
+          <div id="deposit-list" class="deposit-list"></div>
+        </section>
+
+        <section id="withdrawals-tab" class="admin-tab-panel hidden">
+          <div id="withdrawal-warning" class="warning-card">Send the player’s money first. Then enter the bank payout transaction reference and approve. Rejecting releases the reserved balance.</div>
+          <div id="withdrawal-list" class="withdrawal-list"></div>
+        </section>
+
+        <section id="transfers-tab" class="admin-tab-panel hidden">
+          <div class="warning-card">Player-to-player transfers move balance directly between two Lucky accounts. Welcome bonus money cannot be included — the sender's transferable balance already excludes it.</div>
+          <div id="transfer-list" class="withdrawal-list"></div>
+        </section>
+
+        <section id="revenue-tab" class="admin-tab-panel hidden">
+          <div class="warning-card">Commission is a reporting figure, not a balance held anywhere in Lucky — it's just the gap between what entries collected and what payouts released. The real birr already sits in your Telebirr/CBE account as deposits and withdrawals settle, so there's nothing to withdraw from inside the app.</div>
+          <div class="revenue-grid">
+            <article class="revenue-card">
+              <span>Today</span>
+              <strong id="revenue-today">0.00 birr</strong>
+              <small id="revenue-today-rounds">0 rounds settled</small>
+            </article>
+            <article class="revenue-card">
+              <span>Last 7 days</span>
+              <strong id="revenue-week">0.00 birr</strong>
+              <small id="revenue-week-rounds">0 rounds settled</small>
+            </article>
+            <article class="revenue-card">
+              <span>Last 30 days</span>
+              <strong id="revenue-month">0.00 birr</strong>
+              <small id="revenue-month-rounds">0 rounds settled</small>
+            </article>
+            <article class="revenue-card highlight">
+              <span>All-time commission</span>
+              <strong id="revenue-all-time">0.00 birr</strong>
+              <small id="revenue-all-time-rounds">0 rounds settled</small>
+            </article>
+          </div>
+          <div class="revenue-secondary">
+            <span>Gross pool processed<strong id="revenue-gross-pool">0.00 birr</strong></span>
+            <span>Transfer costs paid<strong id="revenue-transfer-cost">0.00 birr</strong></span>
+            <span>Payouts released<strong id="revenue-payouts">0.00 birr</strong></span>
+            <span>Dismissed rounds (refunded)<strong id="revenue-dismissed">0</strong></span>
+          </div>
+          <h3 class="history-title">Commission by tier</h3>
+          <div id="revenue-by-tier" class="revenue-by-tier"></div>
+        </section>
+      </section>
+    </main>
+    <div id="admin-toast" class="toast"></div>
+    <script type="module" src="/static/admin.js?v=20260810-game-balance-v26"></script>
+  </body>
+</html>

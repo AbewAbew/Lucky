@@ -1,0 +1,1 @@
+"""Telegram Bingo application package."""
