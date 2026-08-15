@@ -831,8 +831,7 @@ async function markNumber(cardId, number) {
     return toast(t("toast_wait_for_number"));
   }
   try {
-    const updated = await api(`/api/rooms/${state.roomId}/mark`, { method: "POST", body: JSON.stringify({ card_id: cardId, number }) });
-    state.game.cards = (state.game.cards || []).map((card) => card.id === updated.id ? updated : card);
+    state.game.cards = await api(`/api/rooms/${state.roomId}/mark`, { method: "POST", body: JSON.stringify({ card_id: cardId, number }) });
     state.game.card = state.game.cards[0] || null;
     tg?.HapticFeedback?.impactOccurred("light");
     renderGame();
@@ -945,7 +944,12 @@ function handleEvent(event) {
   if (event.type === "bingo_pending") {
     state.game.room = event.room;
     state.game.winners = event.winners;
-    toast(tn("toast_bingo_cards_detected", event.winners.length));
+    // event.winners can be empty here: a manual (non auto-mark) cartela can
+    // trigger the stop without being auto-confirmed — it only appears once
+    // its owner actually presses BINGO. Nothing false to announce yet.
+    if (event.winners.length > 0) {
+      toast(tn("toast_bingo_cards_detected", event.winners.length));
+    }
   }
   if (event.type === "game_disputed") {
     state.game.room = event.room;

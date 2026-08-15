@@ -918,7 +918,12 @@ def set_auto_mark(room_id: int, user_id: int, enabled: bool) -> list[dict[str, A
 
 def mark_number(
     room_id: int, user_id: int, number: int, card_id: int | None = None
-) -> dict[str, Any]:
+) -> list[dict[str, Any]]:
+    """Mark `number` on the given cartela, and on every other cartela this
+    player owns in this room that also contains it — a called number is the
+    same event for all of a player's cartelas, so marking it once shouldn't
+    require separately clicking it again on each other card that has it.
+    """
     with transaction(immediate=True) as connection:
         if card_id is None:
             row = connection.execute(
@@ -945,15 +950,31 @@ def mark_number(
         ).fetchone()
         if was_drawn is None:
             raise ConflictError("That number has not been called")
-        marks = set(json.loads(row["marks_json"])) | {FREE_SPACE, number}
-        connection.execute(
-            "UPDATE cards SET marks_json = %s WHERE id = %s",
-            (json.dumps(sorted(marks)), row["id"]),
-        )
+
+        all_cards = connection.execute(
+            "SELECT * FROM cards WHERE room_id = %s AND user_id = %s",
+            (room_id, user_id),
+        ).fetchall()
+        for other_card in all_cards:
+            if other_card["blocked"]:
+                continue
+            other_numbers = json.loads(other_card["numbers_json"])
+            if number not in {value for card_row in other_numbers for value in card_row}:
+                continue
+            marks = set(json.loads(other_card["marks_json"])) | {FREE_SPACE, number}
+            connection.execute(
+                "UPDATE cards SET marks_json = %s WHERE id = %s",
+                (json.dumps(sorted(marks)), other_card["id"]),
+            )
+
         updated = connection.execute(
-            "SELECT * FROM cards WHERE id = %s", (row["id"],)
-        ).fetchone()
-    return _serialize_card(updated)
+            """
+            SELECT * FROM cards WHERE room_id = %s AND user_id = %s
+            ORDER BY card_number
+            """,
+            (room_id, user_id),
+        ).fetchall()
+    return [_serialize_card(card) for card in updated]
 
 
 def start_room(room_id: int) -> dict[str, Any]:
@@ -1179,7 +1200,14 @@ def process_winner_window(room_id: int) -> dict[str, Any] | None:
                     getattr(settings, "result_confirmation_seconds", 15)
                 )
             )
+            # Auto-mark cards are paid the instant a valid line is detected, same
+            # as always — auto-mark's whole point is not needing to touch the
+            # app. Manual cards are NOT added here even though they're part of
+            # the detected winning group: their owner must claim_bingo() during
+            # the review window that opens below, or they don't win at all.
             for winner in winners:
+                if not winner["auto_mark"]:
+                    continue
                 connection.execute(
                     """
                     INSERT INTO round_winners (
@@ -1301,7 +1329,21 @@ def finalize_pending_result(
             """,
             (room_id,),
         ).fetchall()
-        if len(winners) > 4:
+        if not winners:
+            # A manual card was part of the detected winning group, but its
+            # owner never pressed BINGO before the review window closed —
+            # nobody actually claimed, so nobody wins this round. Same
+            # terminal state as running out of all 75 numbers with no
+            # winner: no payout, no refund, no settlement row.
+            connection.execute(
+                """
+                UPDATE rooms SET state = 'finished', outcome = 'no_winner',
+                    result_status = 'settled', finished_at = %s WHERE id = %s
+                """,
+                (utc_now(), room_id),
+            )
+            action = "no_winner"
+        elif len(winners) > 4:
             cards = connection.execute(
                 "SELECT * FROM cards WHERE room_id = %s ORDER BY card_number",
                 (room_id,),
@@ -1319,7 +1361,8 @@ def finalize_pending_result(
             _settle_winners_in(connection, room, winners)
             action = "settled"
     return {
-        "type": "game_dismissed" if action == "dismissed" else "game_settled",
+        "type": "game_finished" if action == "no_winner"
+        else "game_dismissed" if action == "dismissed" else "game_settled",
         "room": get_room(room_id),
         "winners": get_round_winners(room_id),
     }
@@ -1393,14 +1436,6 @@ def claim_bingo(
         if claimed_card["blocked"]:
             raise ConflictError("This cartela is blocked for the rest of this round")
 
-        winner = connection.execute(
-            """
-            SELECT rw.card_id FROM round_winners rw
-            WHERE rw.room_id = %s AND rw.card_id = %s
-            """,
-            (room_id, claimed_card["id"]),
-        ).fetchone()
-        accepted = winner is not None and room["outcome"] != "dismissed"
         draws = {
             row["number"]
             for row in connection.execute(
@@ -1408,6 +1443,30 @@ def claim_bingo(
             ).fetchall()
         }
         is_valid_line = has_bingo(json.loads(claimed_card["numbers_json"]), draws)
+        accepted = is_valid_line and room["outcome"] != "dismissed"
+        if accepted:
+            # Auto-mark cards are usually already here (inserted the instant
+            # process_winner_window detected them); manual cards only ever
+            # reach round_winners via an accepted claim, right here — a
+            # manual player who never presses BINGO simply never gets added,
+            # even if their card was genuinely valid. ON CONFLICT DO NOTHING
+            # makes this idempotent for the auto-card case and for a player
+            # double-clicking claim.
+            connection.execute(
+                """
+                INSERT INTO round_winners (
+                    room_id, card_id, user_id, winning_sequence, detected_at
+                ) VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (room_id, card_id) DO NOTHING
+                """,
+                (
+                    room_id,
+                    claimed_card["id"],
+                    user_id,
+                    room["winning_sequence"],
+                    utc_now(),
+                ),
+            )
         if not is_valid_line and room["state"] == "running":
             connection.execute(
                 "UPDATE cards SET blocked = 1 WHERE id = %s", (claimed_card["id"],)

@@ -423,8 +423,9 @@ def test_two_cartelas_debit_four_birr_and_twenty_birr_pool_pays_nineteen() -> No
                         """,
                         (room["id"], number, sequence, db.utc_now()),
                     )
-            pending = repository.process_winner_window(room["id"])
-            assert len(pending["winners"]) == 1
+            repository.process_winner_window(room["id"])
+            assert repository.claim_bingo(room["id"], winner["id"], winner_cards[0]["id"])
+            assert len(repository.get_round_winners(room["id"])) == 1
             repository.finalize_pending_result(room["id"], force=True)
 
             assert repository.get_room(room["id"])["gross_pool_santim"] == 2_000
@@ -505,9 +506,13 @@ def test_wrong_bingo_blocks_only_the_claimed_cartela() -> None:
                     )
             outcome = repository.process_winner_window(room["id"])
             assert outcome["type"] == "bingo_pending"
-            assert [winner["card_id"] for winner in outcome["winners"]] == [
-                cards[1]["id"]
-            ]
+            # cards[1] is manual (default), so process_winner_window detects it
+            # but doesn't pay it out yet — only claim_bingo does that.
+            assert outcome["winners"] == []
+            assert repository.claim_bingo(room["id"], player["id"], cards[1]["id"])
+            assert [
+                winner["card_id"] for winner in repository.get_round_winners(room["id"])
+            ] == [cards[1]["id"]]
         finally:
             db.settings = original_db_settings
 
@@ -551,6 +556,8 @@ def test_one_player_receives_the_total_for_two_winning_cartelas() -> None:
             pending = repository.process_winner_window(room["id"])
             assert pending["type"] == "bingo_pending"
             assert repository.draw_next(room["id"]) is None
+            assert repository.claim_bingo(room["id"], player["id"], cards[0]["id"])
+            assert repository.claim_bingo(room["id"], player["id"], cards[1]["id"])
             settled = repository.finalize_pending_result(room["id"], force=True)
 
             assert settled["type"] == "game_settled"
@@ -605,7 +612,6 @@ def test_same_call_winners_split_equally_after_frozen_result_window() -> None:
             pending = repository.process_winner_window(room["id"])
             assert pending["type"] == "bingo_pending"
             assert "evidence" not in pending
-            assert len(pending["winners"]) == 2
             assert pending["room"]["result_status"] == "pending"
             assert pending["room"]["result_deadline_at"]
             assert pending["room"]["final_called_number"] == first_row[-1]
@@ -616,6 +622,15 @@ def test_same_call_winners_split_equally_after_frozen_result_window() -> None:
             assert len(evidence["draws"]) == len(first_row)
             assert len(evidence["winners"]) == 2
             assert len(evidence["players"]) == 2
+
+            # Both cartelas are manual (default), so neither is paid until its
+            # owner presses BINGO — round_evidence above already reflects both
+            # as detected winners, but round_winners (and everything derived
+            # from it) only updates once each one is actually claimed.
+            assert repository.claim_bingo(room["id"], users[0]["id"], cards[0]["id"])
+            assert repository.claim_bingo(room["id"], users[1]["id"], cards[1]["id"])
+            assert len(repository.get_round_winners(room["id"])) == 2
+
             summaries = repository.list_evidence_rounds()
             assert summaries[0]["id"] == room["id"]
             assert summaries[0]["winner_count"] == 2
@@ -674,6 +689,8 @@ def test_more_than_four_same_call_winners_dismisses_and_refunds() -> None:
 
             pending = repository.process_winner_window(room["id"])
             assert pending["type"] == "bingo_pending"
+            for user, card in zip(users, cards, strict=True):
+                assert repository.claim_bingo(room["id"], user["id"], card["id"])
             dismissed = repository.finalize_pending_result(room["id"], force=True)
             assert dismissed["type"] == "game_dismissed"
             assert len(dismissed["winners"]) == 5
@@ -949,6 +966,7 @@ def test_revenue_summary_totals_commission_by_period_and_tier() -> None:
                         (room["id"], number, sequence, db.utc_now()),
                     )
             repository.process_winner_window(room["id"])
+            assert repository.claim_bingo(room["id"], player["id"], card["id"])
             settled = repository.finalize_pending_result(room["id"], force=True)
             assert settled["type"] == "game_settled"
 

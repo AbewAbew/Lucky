@@ -615,7 +615,7 @@ async def mark_card(
     room_id: int,
     payload: MarkRequest,
     user: Annotated[dict[str, Any], Depends(authenticated_user)],
-) -> dict[str, Any]:
+) -> list[dict[str, Any]]:
     return repository.mark_number(
         room_id, user["id"], payload.number, payload.card_id
     )
