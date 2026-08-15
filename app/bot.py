@@ -350,10 +350,12 @@ class TelegramBot:
                     "chat_id": chat_id,
                     "text": (
                         "Deposit to one of these accounts:\n\n"
-                        f"Telebirr: {settings.telebirr_account}\n"
-                        f"CBE Birr: {settings.cbe_birr_account}\n"
-                        f"CBE Bank Account: {settings.cbe_bank_account}\n"
-                        f"Account name: {settings.payment_account_name}\n\n"
+                        f"Telebirr: {settings.telebirr_account} "
+                        f"({settings.telebirr_account_name})\n"
+                        f"CBE Birr: {settings.cbe_birr_account} "
+                        f"({settings.cbe_account_name})\n"
+                        f"CBE Bank Account: {settings.cbe_bank_account} "
+                        f"({settings.cbe_account_name})\n\n"
                         f"Minimum deposit: {settings.minimum_deposit_santim / 100:.2f} birr\n\n"
                         "After sending, submit:\n"
                         "/pay amount transactionID provider\n\n"

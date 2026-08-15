@@ -276,7 +276,7 @@ function refreshCountdowns() {
     }
     if ($("timer-progress")) {
       const pct = resultPending
-        ? Math.max(0, Math.min(100, (resultSeconds / Number(state.config?.result_confirmation_seconds || 15)) * 100))
+        ? Math.max(0, Math.min(100, (resultSeconds / Number(state.config?.result_confirmation_seconds || 6)) * 100))
         : room.state === "running"
         ? Math.max(0, Math.min(100, (draws.length / 75) * 100))
         : seconds === null ? 0 : Math.max(0, Math.min(100,
@@ -1041,7 +1041,8 @@ async function openWallet(tab = "deposit") {
     $("telebirr-account").textContent = instructions.telebirr_account || t("not_configured");
     $("cbe-account").textContent = instructions.cbe_birr_account || t("not_configured");
     $("cbe-bank-account").textContent = instructions.cbe_bank_account || t("not_configured");
-    $("account-name").textContent = t("account_name_label", { name: instructions.account_name });
+    $("telebirr-account-name").textContent = t("account_name_label", { name: instructions.telebirr_account_name });
+    $("cbe-account-name").textContent = t("account_name_label", { name: instructions.cbe_account_name });
     $("deposit-amount").min = money(instructions.minimum_deposit_santim);
     $("deposit-amount").placeholder = t("deposit_amount_placeholder", { min: money(instructions.minimum_deposit_santim) });
     $("withdraw-available").textContent = birr(wallet.withdrawable_balance_santim);

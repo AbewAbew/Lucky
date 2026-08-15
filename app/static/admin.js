@@ -292,7 +292,7 @@ function connectSocket() {
     if (event.sold_card_numbers) state.soldCardNumbers = event.sold_card_numbers;
     if (event.draws) state.game.draws = event.draws;
     if (event.winners) state.game.winners = event.winners;
-    if (event.type === "bingo_pending") toast(`${event.winners.length} winning card(s); calls stopped for 15-second review`);
+    if (event.type === "bingo_pending") toast(`${event.winners.length} winning card(s); calls stopped for 6-second review`);
     if (event.type === "game_disputed") toast(`Round #${event.room.id} disputed; payment frozen`);
     if (event.type === "game_settled") toast(`Payout split between ${event.winners.length} winner(s)`);
     if (event.type === "game_dismissed") toast("More than four winners: round dismissed and refunded");

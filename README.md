@@ -24,7 +24,7 @@ A 75-ball Bingo game designed as a Telegram bot plus Mini App. Telegram register
 - Atomic, server-verified row, column, diagonal, and four-corners Bingo claims
 - Cartela-specific BINGO buttons; an incorrect claim blocks only that cartela for the round
 - Same-called-number winners share the net payout equally
-- Immediate number-call stop and a 15-second result review after the first winning call
+- Immediate number-call stop and a 6-second result review after the first winning call
 - Automatic round dismissal and full entry refunds when more than four cards win on the same call
 - Persistent game history and leaderboard
 - Bot commands and a native Mini App launcher
@@ -110,7 +110,8 @@ ENABLE_REAL_MONEY=false
 ADMIN_TELEGRAM_IDS=111111111,222222222,333333333
 TELEBIRR_ACCOUNT=09XXXXXXXX
 CBE_BIRR_ACCOUNT=1000XXXXXXXXX
-PAYMENT_ACCOUNT_NAME=Lucky Bingo
+TELEBIRR_ACCOUNT_NAME=Lucky Bingo
+CBE_ACCOUNT_NAME=Lucky Bingo
 MINIMUM_DEPOSIT_BIRR=10
 MINIMUM_WITHDRAWAL_BIRR=100
 DEFAULT_TRANSFER_COST_BIRR=0
@@ -121,7 +122,7 @@ AUTO_START_DELAY_SECONDS=20
 
 ## Winner settlement rules
 
-The server evaluates every sold card after every called number, so a slow player connection cannot erase a valid Bingo. Calls stop immediately on the first winning call. All cards that complete a valid pattern on that exact call are one winning group, and the result remains pending for 15 seconds for review. The net payout is split between one to four winning cartelas. Any indivisible santim remainder is assigned deterministically by ascending card number. If five or more cartelas win on that call, the round is dismissed, all entries are refunded, and no commission or transfer cost is charged.
+The server evaluates every sold card after every called number, so a slow player connection cannot erase a valid Bingo. Calls stop immediately on the first winning call. All cards that complete a valid pattern on that exact call are one winning group, and the result remains pending for 6 seconds for review. The net payout is split between one to four winning cartelas. Any indivisible santim remainder is assigned deterministically by ascending card number. If five or more cartelas win on that call, the round is dismissed, all entries are refunded, and no commission or transfer cost is charged.
 
 Alternatively, use Docker:
 

@@ -1344,7 +1344,7 @@ def dispute_round(room_id: int, user_id: int, reason: str) -> dict[str, Any]:
             raise ConflictError("This round is not in the result review window")
         deadline = datetime.fromisoformat(room["result_deadline_at"])
         if now > deadline:
-            raise ConflictError("The 15-second result review window has closed")
+            raise ConflictError("The result review window has closed")
         connection.execute(
             """
             INSERT INTO round_disputes (room_id, user_id, reason, created_at)

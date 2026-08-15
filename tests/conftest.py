@@ -34,7 +34,8 @@ _TEST_ENV = {
     "ADMIN_TELEGRAM_IDS": "999000,999001,999002",
     "TELEBIRR_ACCOUNT": "test-telebirr-account",
     "CBE_BIRR_ACCOUNT": "test-cbe-account",
-    "PAYMENT_ACCOUNT_NAME": "Lucky Test",
+    "TELEBIRR_ACCOUNT_NAME": "Lucky Test",
+    "CBE_ACCOUNT_NAME": "Lucky Test",
     "MINIMUM_DEPOSIT_BIRR": "10",
     "MINIMUM_WITHDRAWAL_BIRR": "100",
     "DEFAULT_TRANSFER_COST_BIRR": "0",
@@ -44,7 +45,7 @@ _TEST_ENV = {
     "SIGNUP_BONUS_BIRR": "0",
     "CALL_INTERVAL_SECONDS": "3",
     "AUTO_START_DELAY_SECONDS": "20",
-    "RESULT_CONFIRMATION_SECONDS": "15",
+    "RESULT_CONFIRMATION_SECONDS": "6",
 }
 
 for _key, _value in _TEST_ENV.items():

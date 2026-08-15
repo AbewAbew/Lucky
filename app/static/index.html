@@ -349,10 +349,10 @@
             <li data-i18n="rules_prizes_1">The winner receives the total stakes minus the 5% commission and configured transfer cost.</li>
             <li data-i18n="rules_prizes_2">One to four cartelas completing Bingo on the same first winning call share the prize equally.</li>
             <li data-i18n="rules_prizes_3">Number calling stops immediately when the server detects the first valid Bingo. No additional numbers are called.</li>
-            <li data-i18n="rules_prizes_4">The result remains pending for 15 seconds while the server confirms every cartela that won on the same final call.</li>
+            <li data-i18n="rules_prizes_4">The result remains pending for 6 seconds while the server confirms every cartela that won on the same final call.</li>
             <li data-i18n="rules_prizes_5">If more than four cartelas win on the same call, the round is dismissed and all entry stakes are refunded with no commission.</li>
             <li data-i18n="rules_prizes_6">A false Bingo claim blocks only the cartela used for that claim; your other cartelas remain active.</li>
-            <li data-i18n="rules_prizes_7">A participating player may dispute the result during the 15-second review. A dispute freezes payment and saves the round as DISPUTED.</li>
+            <li data-i18n="rules_prizes_7">A participating player may dispute the result during the 6-second review. A dispute freezes payment and saves the round as DISPUTED.</li>
           </ol>
         </section>
 
@@ -433,9 +433,10 @@
         <section id="wallet-deposit-panel" class="wallet-tab-panel">
           <div class="deposit-accounts">
             <p><span data-i18n="provider_telebirr">Telebirr</span><strong id="telebirr-account">—</strong></p>
+            <small id="telebirr-account-name"></small>
             <p><span data-i18n="provider_cbe">CBE Birr</span><strong id="cbe-account">—</strong></p>
             <p><span data-i18n="provider_cbe_account">CBE Bank Account</span><strong id="cbe-bank-account">—</strong></p>
-            <small id="account-name"></small>
+            <small id="cbe-account-name"></small>
           </div>
           <form id="deposit-form" class="deposit-form">
             <select id="deposit-provider" class="form-input"><option value="telebirr" data-i18n="provider_telebirr">Telebirr</option><option value="cbe" data-i18n="provider_cbe">CBE Birr</option><option value="cbe_account" data-i18n="provider_cbe_account">CBE Bank Account</option></select>

@@ -689,7 +689,8 @@ async def payment_instructions(
         "telebirr_account": settings.telebirr_account,
         "cbe_birr_account": settings.cbe_birr_account,
         "cbe_bank_account": settings.cbe_bank_account,
-        "account_name": settings.payment_account_name,
+        "telebirr_account_name": settings.telebirr_account_name,
+        "cbe_account_name": settings.cbe_account_name,
         "minimum_deposit_santim": settings.minimum_deposit_santim,
         "minimum_withdrawal_santim": settings.minimum_withdrawal_santim,
     }

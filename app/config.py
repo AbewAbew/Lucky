@@ -40,7 +40,7 @@ class Settings:
     call_interval_seconds: float = float(os.getenv("CALL_INTERVAL_SECONDS", "3"))
     auto_start_delay_seconds: float = float(os.getenv("AUTO_START_DELAY_SECONDS", "20"))
     result_confirmation_seconds: float = float(
-        os.getenv("RESULT_CONFIRMATION_SECONDS", "15")
+        os.getenv("RESULT_CONFIRMATION_SECONDS", "6")
     )
     test_single_player_start: bool = _as_bool(
         os.getenv("TEST_SINGLE_PLAYER_START"), False
@@ -50,7 +50,8 @@ class Settings:
     telebirr_account: str = os.getenv("TELEBIRR_ACCOUNT", "Not configured")
     cbe_birr_account: str = os.getenv("CBE_BIRR_ACCOUNT", "Not configured")
     cbe_bank_account: str = os.getenv("CBE_BANK_ACCOUNT", "Not configured")
-    payment_account_name: str = os.getenv("PAYMENT_ACCOUNT_NAME", "Lucky Bingo")
+    telebirr_account_name: str = os.getenv("TELEBIRR_ACCOUNT_NAME", "Lucky Bingo")
+    cbe_account_name: str = os.getenv("CBE_ACCOUNT_NAME", "Lucky Bingo")
     minimum_deposit_santim: int = _birr_to_santim(
         os.getenv("MINIMUM_DEPOSIT_BIRR", "10")
     )
