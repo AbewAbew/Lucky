@@ -65,6 +65,9 @@ class Settings:
         os.getenv("DEFAULT_TRANSFER_COST_BIRR")
     )
     signup_bonus_santim: int = _birr_to_santim(os.getenv("SIGNUP_BONUS_BIRR", "10"))
+    referral_bonus_santim: int = _birr_to_santim(
+        os.getenv("REFERRAL_BONUS_BIRR", "10")
+    )
 
     def is_admin(self, telegram_id: int) -> bool:
         return telegram_id in self.admin_telegram_ids

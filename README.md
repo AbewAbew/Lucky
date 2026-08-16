@@ -6,7 +6,7 @@ A 75-ball Bingo game designed as a Telegram bot plus Mini App. Telegram register
 
 - Telegram Mini App authentication with server-side HMAC verification
 - Local demo authentication for development
-- Automatic player registration and referral attribution
+- Automatic player registration and referral attribution, with a one-time non-withdrawable bonus for the referrer once their invited friend makes their first approved deposit
 - 2, 5, and 10 birr categories with 400 selectable cartelas per round
 - Visual 1–400 picker with full cartela preview before confirmation
 - Up to five cartelas per player, displayed together throughout the live game

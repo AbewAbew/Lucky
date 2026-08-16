@@ -1668,6 +1668,39 @@ def review_deposit(
                     utc_now(),
                 ),
             )
+            if settings.referral_bonus_santim > 0:
+                depositor = connection.execute(
+                    "SELECT referred_by, first_name FROM users WHERE id = %s",
+                    (deposit["user_id"],),
+                ).fetchone()
+                if depositor["referred_by"]:
+                    # reference_id is the referred user's id, not this deposit's —
+                    # the UNIQUE(user_id, kind, reference_type, reference_id)
+                    # constraint then makes this a one-time bonus per referred
+                    # friend: it fires on their first approved deposit and
+                    # ON CONFLICT DO NOTHING silently no-ops on every deposit
+                    # after that, with no separate "is this their first" check.
+                    connection.execute(
+                        """
+                        INSERT INTO wallet_entries (
+                            user_id, amount_santim, kind, reference_type,
+                            reference_id, description, created_by_user_id, created_at
+                        ) VALUES (%s, %s, 'bonus', 'referral', %s, %s, %s, %s)
+                        ON CONFLICT (user_id, kind, reference_type, reference_id)
+                        DO NOTHING
+                        """,
+                        (
+                            depositor["referred_by"],
+                            settings.referral_bonus_santim,
+                            deposit["user_id"],
+                            f"Referral bonus: {depositor['first_name']} made their "
+                            f"first approved deposit "
+                            f"({settings.referral_bonus_santim / 100:g} birr, "
+                            "not withdrawable)",
+                            admin_user_id,
+                            utc_now(),
+                        ),
+                    )
     return get_deposit(deposit_id)
 
 

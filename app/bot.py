@@ -465,11 +465,21 @@ class TelegramBot:
         elif command == "/invite":
             username = settings.bot_username.lstrip("@")
             invite_url = f"https://t.me/{username}?start=ref_{user['telegram_id']}"
+            bonus_line = (
+                f"\n\nYou'll earn {settings.referral_bonus_santim / 100:g} birr in "
+                "bonus credit once they register and make their first approved "
+                "deposit."
+                if settings.referral_bonus_santim > 0
+                else ""
+            )
             await self.call(
                 "sendMessage",
                 {
                     "chat_id": chat_id,
-                    "text": f"Invite friends to Lucky with your personal link:\n{invite_url}",
+                    "text": (
+                        f"Invite friends to Lucky with your personal link:\n"
+                        f"{invite_url}{bonus_line}"
+                    ),
                     "reply_markup": self.menu_keyboard(user["telegram_id"]),
                 },
             )

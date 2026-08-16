@@ -788,6 +788,68 @@ def test_new_signup_grants_a_one_time_free_bonus_that_is_not_withdrawable() -> N
             db.settings = original_db_settings
 
 
+def test_referral_bonus_is_granted_once_on_first_approved_deposit() -> None:
+    with TemporaryDirectory() as directory:
+        original_db_settings = setup_database()
+        original_repository_settings = repository.settings
+        repository.settings = replace(settings, referral_bonus_santim=1_000)
+        try:
+            referrer = repository.upsert_user(
+                TelegramUser(telegram_id=800, first_name="Referrer")
+            )
+            admin = repository.upsert_user(
+                TelegramUser(telegram_id=999_000, first_name="Admin")
+            )
+            referred = repository.upsert_user(
+                TelegramUser(telegram_id=801, first_name="Referred"),
+                referred_by_telegram_id=800,
+            )
+
+            first_deposit = repository.submit_deposit(
+                referred["id"], 5_000, "REF-DEP-1", "telebirr"
+            )
+            repository.review_deposit(first_deposit["id"], admin["id"], True)
+
+            wallet = repository.wallet_summary(referrer["id"])
+            assert wallet["balance_santim"] == 1_000
+            assert wallet["bonus_santim"] == 1_000
+            assert wallet["withdrawable_balance_santim"] == 0
+
+            # A second deposit by the same referred friend must not grant a
+            # second bonus: the referral bonus is a one-time reward per
+            # referred friend, not a per-deposit reward.
+            second_deposit = repository.submit_deposit(
+                referred["id"], 5_000, "REF-DEP-2", "telebirr"
+            )
+            repository.review_deposit(second_deposit["id"], admin["id"], True)
+            assert repository.wallet_balance(referrer["id"]) == 1_000
+        finally:
+            repository.settings = original_repository_settings
+            db.settings = original_db_settings
+
+
+def test_referral_bonus_is_not_granted_without_a_referrer() -> None:
+    with TemporaryDirectory() as directory:
+        original_db_settings = setup_database()
+        original_repository_settings = repository.settings
+        repository.settings = replace(settings, referral_bonus_santim=1_000)
+        try:
+            admin = repository.upsert_user(
+                TelegramUser(telegram_id=999_000, first_name="Admin")
+            )
+            player = repository.upsert_user(
+                TelegramUser(telegram_id=810, first_name="No Referrer")
+            )
+            deposit = repository.submit_deposit(
+                player["id"], 5_000, "NO-REF-DEP-1", "telebirr"
+            )
+            repository.review_deposit(deposit["id"], admin["id"], True)
+            assert repository.wallet_balance(player["id"]) == 5_000
+        finally:
+            repository.settings = original_repository_settings
+            db.settings = original_db_settings
+
+
 def test_withdrawal_excludes_bonus_money_from_the_withdrawable_balance() -> None:
     with TemporaryDirectory() as directory:
         original_db_settings = setup_database()
